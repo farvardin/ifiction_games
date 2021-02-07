@@ -1,0 +1,135 @@
+!% -Cu
+!% -~S
+! % -v3
+!% $OMIT_UNUSED_ROUTINES=1
+! Les toutes premières lignes du fichier de code source principal d'un jeu peuvent contenir des options de compilation, comme les trois lignes ci-dessus.
+! Cu définit l'encodage UTF-8 pour les fichiers sources du jeu.
+! -~S désactive le contrôle strict des erreurs. Cette fonction est utilisée par défaut dans les jeux z5 et z8. Bien qu'utile pour le débogage, il ajoute ~10 Ko à la taille du fichier de l'histoire et rend le jeu plus lent.
+! $OMIT_UNUSED_ROUTINES=1 fait en sorte que le compilateur supprime toutes les routines qui ne sont pas utilisées. Cela permet de gagner de la place.
+
+Constant Story      "L'institut";
+Constant Headline   "^Une aventure dans un lieu hanté.^";
+
+! Dé-commentez l'une des deux lignes suivantes pour afficher dans la barre d'état, soit le temps, soit le score et le nombre de tours de jeu. Laisser les deux commentaires rend la bibliothèque plus lourde.
+!Constant STATUSLINE_TIME; Statusline time;
+Constant STATUSLINE_SCORE; Statusline score;
+
+! Dé-commentez l'ajout de fonctionnalités optionnelles à PunyLib
+!Constant DEBUG;
+Constant CUSTOM_ABBREVIATIONS;
+!Constant OPTIONAL_NO_DARKNESS;
+!Constant OPTIONAL_ALLOW_WRITTEN_NUMBERS;
+Constant OPTIONAL_EXTENDED_METAVERBS;
+Constant OPTIONAL_EXTENDED_VERBSET;
+Constant OPTIONAL_PRINT_SCENERY_CONTENTS;
+!Constant OPTIONAL_FULL_SCORE;
+Constant OPTIONAL_FULL_DIRECTIONS;
+!Constant OPTIONAL_SIMPLE_DOORS;
+!Constant OPTIONAL_SHIP_DIRECTIONS;
+Constant OPTIONAL_GUESS_MISSING_NOUN;
+!Constant OPTIONAL_MANUAL_SCOPE;
+!Constant OPTIONAL_ORDERED_TIMERS;
+!Constant RUNTIME_ERRORS = 0;
+
+Constant OPTIONAL_TALK_TO;
+!Constant AVEC_ACCENTS;
+
+! Définissez ici les constantes de bibliothèque dont vous avez besoin, comme MAX_SCORE, AMUSING_PROVIDED,
+! MAX_CARRIED, SACK_OBJECT,  etc.
+
+Constant INITIAL_LOCATION_VALUE = Parc;
+
+Include "globals.h";
+
+! Définissez ici vos propres variables globales, si vous en avez.
+
+! Définissez les routines de point d'entrée dont vous avez besoin ici, comme Amusant, DarkToDark, etc.
+
+! Dé-commentez pour ajouter des extensions à la bibliothèque.
+!Include "ext_menu.h";
+!Include "ext_flags.h";
+!Include "ext_quote_box.h";
+!Include "ext_cheap_scenery.h";
+
+Include "puny.h";
+
+! Dé-commentez pour ajouter des extensions à la bibliothèque.
+!Include "ext_waittime.h";
+
+Object Parc "Parc"
+	with
+		description "Le parc de l'institut François-Marie Raoult, bien que réduit à sa plus simple expression, est régulièrement et consciencieusement entretenu par le gardien. À l'est se trouve l'entrée du petit musée des anciennes technologies, tandis qu'au nord il y a le bâtiment de l'institut proprement dit, d'où vous venez juste de sortir après un rude après-midi. La sortie vers la rue se trouve au sud, près de la loge du concierge de l'institut.",
+		n_to Institut,
+		e_to Musee,
+		!s_to [; << Enter Nid >>; ],
+		s_to Sortie,
+	has light;
+
+Object -> Nid "nid"
+	with
+		name 'nid',
+		inside_description "Un grand nid circulaire, de la taille d'une roue de chariot, posé sur le toit du musée.",
+      article ARTICLE_UN,
+	has container open openable enterable;
+
+
+Object Institut "Institut"
+	with
+		description "L'institut François-Marie Raoult est un prestigieux centre de recherche dans le domaine de la linguistique et de la chimie. Après avoir passé ici votre thèse sur les consonnes affriquées post-alvéolaire voisées dans le Japonais à l'ère Edo, vous avez décidé de continuer à travailler ici en tant que secrétaire de M. François-Sylvère de Freycinet, le président de l'institut. Ce soir, vous êtes resté particulièrement tard...",
+		s_to Parc,
+		cant_go "Vous avez surtout envie de rentrer à cette heure-ci, en plus il n'y a plus personne dans les locaux et l'alarme risque de s'armer très bientôt.",
+	has light ;
+	
+	
+Object Musee "Musée"
+	with 
+		description "Même si ce n'est pas très visible depuis l'extérieur, ce musée a été aménagé dans une vieille grange. Une petite ouverture permet d'aller au sud, tandis que la sortie est à l'ouest.",
+		w_to Parc,
+		s_to Loge,
+	has light;
+
+Object Sortie "Sortie"
+	with 
+		description "La sortie au sud est bloquée par une barrière pendant la journée, et par une grille durant les heures de fermeture de l'institut. Au nord se trouve le petit parc ainsi que l'entrée de l'institut. À l'est il y a la loge du gardien.",
+		n_to Parc,
+		e_to Loge,
+	has light;
+	
+Object Loge "Loge"
+	with 
+		description "Un lieu délabré, digne des pires films d'horreur : la peinture jaune sale des murs est complètement défraîchie, et des toiles d'araignées immenses pendent du plafond.",
+		w_to Sortie,
+	has light;
+
+	
+
+
+Class Personnage
+	with life [;
+	! Answer,Ask,Order,Tell:
+	! print_ret "Utilisez plut�t -parler �-", (the) self, "." ;
+			  ],
+	initial [;
+	; ], 
+	has animate proper;
+
+
+Personnage Croquemitaine "bonhomme sept-heure" Loge
+	with 
+		name 'monstre' 'bonhomme' 'sept' 'heure' 'sept-heure' 'haillons' 'vagabond' 'homme',
+		description "Il ressemble a un vagabond en haillons, avec des yeux vitreux et un rictus de haine, seule trace d'humanité qui lui reste.",
+		initial [;
+			print "Le bonhomme sept-heure est là.^";
+		],
+		life [;
+			Attack: print "Le monstre vous impressionne trop pour que vous puissiez lever la main dessus.^" ;  rtrue;
+			TalkTo: print "Vous ne pouvez communiquer avec lui, c'est une force maléfique qui est vouée à votre destruction.^" ; rtrue;
+		],
+	has ;
+
+
+[ Initialise;
+	location = Parc;
+	move Croquemitaine to Loge;
+];
+
