@@ -1,2 +1,5 @@
 # ifiction_games
-Some of my interactive fiction games
+
+Quelques uns de mes jeux pour inform 6 et 7 (in French)
+
+
